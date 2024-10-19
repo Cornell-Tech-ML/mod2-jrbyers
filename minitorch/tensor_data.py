@@ -44,8 +44,11 @@ def index_to_position(index: Index, strides: Strides) -> int:
         Position in storage
 
     """
-    # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
+    sum = 0
+    for i in range(len(index)):
+        sum += index[i] * strides[i]
+    return sum
+
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
@@ -61,7 +64,22 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
 
     """
     # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
+    #raise NotImplementedError("Need to implement for Task 2.1")
+    for i in range(len(shape) - 1, -1, -1):
+        out_index[i] = ordinal % shape[i]
+        ordinal //= shape[i]
+
+"""
+    cur_val = ordinal
+    for i in range(1, len(shape), -1):  # loop through shape backwards
+        store = cur_val // shape[i]
+        out_index[i] = cur_val % shape[i]
+        cur_val = store
+
+    out_index[0] = cur_val
+"""
+
+    
 
 
 def broadcast_index(
@@ -232,7 +250,33 @@ class TensorData:
         ), f"Must give a position to each dimension. Shape: {self.shape} Order: {order}"
 
         # TODO: Implement for Task 2.1.
-        raise NotImplementedError("Need to implement for Task 2.1")
+        
+        #raise NotImplementedError("Need to implement for Task 2.1")
+        """
+        print(order)
+        print(f"{self._storage=}")
+        print(f"{self._strides=}")
+        print(f"{self._shape=}")
+        print(f"{self.strides=}")
+        print(f"{self.shape=}")
+        print(f"{self.dims=}")
+        print()
+        
+        _storage: Storage
+        _strides: Strides
+        _shape: Shape
+        strides: UserStrides
+        shape: UserShape
+        dims: int
+        """
+        new_shape = tuple(self.shape[i] for i in order)
+        new_strides = tuple(self.strides[i] for i in order)
+        #new_strides = strides_from_shape(new_shape)
+        return TensorData(self._storage, new_shape, new_strides)
+        self.shape = tuple(self.shape[i] for i in order)
+        self.strides = strides_from_shape(self.shape) #tuple(self.strides[i] for i in order)
+
+        return self
 
     def to_string(self) -> str:
         """Convert to string"""
