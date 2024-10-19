@@ -95,8 +95,12 @@ def broadcast_index(
     """
     # TODO: Implement for Task 2.2.
     # raise NotImplementedError("Need to implement for Task 2.2")
-    print(f"{big_index=}")
-    print(f"{shape=}")
+    small_length = len(shape)
+    for i in range(-1, -small_length - 1, -1):  # loop from -1 to -small_length
+        if big_shape[i] > shape[i]: # the case where shape[i] is 1 and big_shape[i] is not
+            out_index[i] = 0
+        else:
+            out_index[i] = big_index[i]
 
 
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
