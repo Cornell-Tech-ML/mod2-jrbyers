@@ -262,7 +262,10 @@ class Permute(Function):
     @staticmethod
     def forward(ctx: Context, t1: Tensor, dim: Tensor) -> Tensor:
         """Forward pass permute"""
-        dim_tuple = t1.tuple()
+        dim_tuple = []
+        for i in dim:
+            dim_tuple.append(int(i))
+        # dim_tuple = tuple(int(dim[i] for i in range(dim.shape[0])))
         t1._tensor.permute(*dim_tuple)
         return t1
 
