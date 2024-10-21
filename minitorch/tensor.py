@@ -264,6 +264,7 @@ class Tensor:
         assert h.ctx is not None
 
         x = h.last_fn._backward(h.ctx, d_output)
+
         assert len(x) == len(h.inputs), f"Bug in function {h.last_fn}"
         return [
             (inp, inp.expand(self._ensure_tensor(d_in)))
@@ -367,6 +368,9 @@ class Tensor:
 
     def sum(self, b: Optional[TensorLike] = None) -> Tensor:
         """Sum the tensor."""
+        print("Sum b param: " + str(b))
+        print("self param: " + str(self))
+
         if b is not None:
             b = self._ensure_tensor(b)
             return Sum.apply(self, b)  # Pass both tensors if b is provided

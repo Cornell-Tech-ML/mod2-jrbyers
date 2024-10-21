@@ -239,6 +239,7 @@ class TensorData:
             raise IndexingError(f"Index {aindex} must be size of {self.shape}.")
         for i, ind in enumerate(aindex):
             if ind >= self.shape[i]:
+                print("HOUSTONNNNNNN")
                 raise IndexingError(f"Index {aindex} out of range {self.shape}.")
             if ind < 0:
                 raise IndexingError(f"Negative indexing for {aindex} not supported.")
