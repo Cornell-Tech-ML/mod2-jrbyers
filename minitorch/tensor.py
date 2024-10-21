@@ -333,8 +333,16 @@ class Tensor:
         return self * b
     
     def all(self, b: TensorLike = None) -> Tensor:
-        b = self._ensure_tensor(b)
-        return All.apply(self, b)
+        """
+        if b is not None:
+            b = self._ensure_tensor(b)
+        return all.apply(self, b)
+        """
+        if b is not None:
+            b = self._ensure_tensor(b)
+            return All.apply(self, b)  # Pass both tensors if b is provided
+        else:
+            return All.apply(self)
     
     def is_close(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
@@ -357,46 +365,33 @@ class Tensor:
         return Exp.apply(self)
 
     
-    def sum(self, dim : TensorLike = None) -> Tensor:
+    def sum(self, b : TensorLike = None) -> Tensor:
         """Sum the tensor."""
-        print("before dim a tensor: " + str(dim))
-        if dim is not None:
-            dim = self._ensure_tensor(dim)
-        print("after dim a tensor: " + str(dim))
-        return Sum.apply(self, dim)
-
-        
-        if dim is None:
-            # If no dimension is provided, flatten the tensor and sum all elements
-            zero_tensor = self._ensure_tensor(0)
-            return Sum.apply(self, zero_tensor).f.add_reduce(self.reshape((self.size,)), zero_tensor)
+        """
+        if b is not None:
+            b = self._ensure_tensor(b)
+        return Sum.apply(self, b)
+        """
+        #"""
+        if b is not None:
+            b = self._ensure_tensor(b)
+            print("b is: " + str(b))
+            return Sum.apply(self, b)  # Pass both tensors if b is provided
         else:
-            # Sum along the specified dimension
-            return Sum.apply(self, dim)
+            return Sum.apply(self)
+        #"""
         
-    def mean(self, dim : int = -1) -> Tensor:
+        
+    def mean(self, b : TensorLike = None) -> Tensor:
         """Sum the tensor."""
-        if dim == -1:
-            # If no dimension is provided, flatten the tensor and sum all elements
-            return Sum.apply(self, 0).f.add_reduce(self.reshape((self.size,)), 0)
-        else:
-            # Sum along the specified dimension
-            return Sum.apply(self, dim)
+        return
         
-    def permute(self, dim : Tensor = -1) -> Tensor:
+    def permute(self, b : TensorLike = None) -> Tensor:
         """Sum the tensor."""
-        if dim is None:
-            # If no dimension is provided, flatten the tensor and sum all elements
-            return Sum.apply(self, 0).f.add_reduce(self.reshape((self.size,)), 0)
-        else:
-            # Sum along the specified dimension
-            return Sum.apply(self, dim)
+        return
     
-    def view(self, dim : int = None) -> Tensor:
-        """Sum the tensor."""
-        if dim is None:
-            # If no dimension is provided, flatten the tensor and sum all elements
-            return Sum.apply(self, 0).f.add_reduce(self.reshape((self.size,)), 0)
-        else:
-            # Sum along the specified dimension
-            return Sum.apply(self, dim)
+    def view(self, b : Tensor = None) -> Tensor:
+        """Reshape the view of the tensor."""
+        if b is not None:
+            b = self._ensure_tensor(b)
+        return View.apply(self, b)

@@ -100,7 +100,7 @@ class Add(Function):
 
 class All(Function):
     @staticmethod
-    def forward(ctx: Context, a: Tensor, dim: Tensor) -> Tensor:
+    def forward(ctx: Context, a: Tensor, dim: Tensor = None) -> Tensor:
         """Return 1 if all are true"""
         if dim is not None:
             return a.f.mul_reduce(a, int(dim.item()))
@@ -192,15 +192,8 @@ class Sum(Function):
     """Calculates the sum function."""
 
     @staticmethod
-    def forward(ctx: Context, t1: Tensor, dim: Tensor) -> Tensor:
+    def forward(ctx: Context, t1: Tensor, dim: Tensor = None) -> Tensor:
         """Forward pass sum function"""
-        print("DIM IS: " + str(dim))
-        print("dim index: " + str(int(dim.item())))
-
-        ctx.save_for_backward(t1, int(dim.item()))
-        if dim is None:
-            print("THIS BIT WONT GO AWA")
-
         if dim is not None:
             return t1.f.add_reduce(t1, int(dim.item()))
         else:
@@ -251,7 +244,7 @@ class Permute(Function):
     """Checks if two numbers are equal."""
 
     @staticmethod
-    def forward(ctx: Context, a: float, b: float) -> float:
+    def forward(ctx: Context, a: Tensor, b: Tensor) -> Tensor:
         """Forward pass equal operator"""
         return
 
