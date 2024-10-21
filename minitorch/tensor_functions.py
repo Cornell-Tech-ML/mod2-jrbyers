@@ -260,9 +260,11 @@ class Permute(Function):
     """Modifies dimensions of tensor."""
 
     @staticmethod
-    def forward(ctx: Context, t1: Tensor, dim: Optional[Tensor] = None) -> Tensor:
+    def forward(ctx: Context, t1: Tensor, dim: Tensor) -> Tensor:
         """Forward pass permute"""
-        return t1.permute(dim)
+        dim_tuple = t1.tuple()
+        t1._tensor.permute(*dim_tuple)
+        return t1
 
 
 class View(Function):
