@@ -12,7 +12,7 @@ from .autodiff import Context, Variable, backpropagate
 from .tensor_data import TensorData
 
 # Comment these out if not yet implemented
-"""
+#"""
 from .tensor_functions import (
     EQ,
     LT,
@@ -33,7 +33,7 @@ from .tensor_functions import (
     View,
     tensor,
 )
-"""
+#"""
 
 if TYPE_CHECKING:
     from typing import Any, Iterable, List, Optional, Sequence, Tuple, Type, Union
@@ -95,6 +95,8 @@ class Tensor:
             self.name = str(self.unique_id)
 
         self.f = backend
+        self.size = self._tensor.size
+        
 
     def requires_grad_(self, x: bool) -> None:
         """Adds history if gradient descent is needed."""
@@ -295,3 +297,106 @@ class Tensor:
 
     # Functions
     # TODO: Implement for Task 2.3.
+    def __add__(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return Add.apply(self, b)
+    
+    def __sub__(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return Add.apply(self, Neg.apply(b))
+    
+    def __mul__(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return Mul.apply(self, b)
+    
+    def __lt__(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return LT.apply(self, b)
+    
+    def __eq__(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return EQ.apply(self, b)
+    
+    def __gt__(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return LT.apply(b, self)
+    
+    def __neg__(self) -> Tensor:
+        return Neg.apply(self)
+
+    def __radd__(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return self + b
+    
+    def __rmul__(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return self * b
+    
+    def all(self, b: TensorLike = None) -> Tensor:
+        b = self._ensure_tensor(b)
+        return All.apply(self, b)
+    
+    def is_close(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return IsClose.apply(self, b)
+    
+    def sigmoid(self) -> Tensor:
+        """Apply sigmoid function"""
+        return Sigmoid.apply(self)
+
+    def relu(self) -> Tensor:
+        """Apply relu function"""
+        return ReLU.apply(self)
+    
+    def log(self) -> Tensor:
+        """Apply log function"""
+        return Log.apply(self)
+
+    def exp(self) -> Tensor:
+        """Apply exponential function"""
+        return Exp.apply(self)
+
+    
+    def sum(self, dim : TensorLike = None) -> Tensor:
+        """Sum the tensor."""
+        print("before dim a tensor: " + str(dim))
+        if dim is not None:
+            dim = self._ensure_tensor(dim)
+        print("after dim a tensor: " + str(dim))
+        return Sum.apply(self, dim)
+
+        
+        if dim is None:
+            # If no dimension is provided, flatten the tensor and sum all elements
+            zero_tensor = self._ensure_tensor(0)
+            return Sum.apply(self, zero_tensor).f.add_reduce(self.reshape((self.size,)), zero_tensor)
+        else:
+            # Sum along the specified dimension
+            return Sum.apply(self, dim)
+        
+    def mean(self, dim : int = -1) -> Tensor:
+        """Sum the tensor."""
+        if dim == -1:
+            # If no dimension is provided, flatten the tensor and sum all elements
+            return Sum.apply(self, 0).f.add_reduce(self.reshape((self.size,)), 0)
+        else:
+            # Sum along the specified dimension
+            return Sum.apply(self, dim)
+        
+    def permute(self, dim : Tensor = -1) -> Tensor:
+        """Sum the tensor."""
+        if dim is None:
+            # If no dimension is provided, flatten the tensor and sum all elements
+            return Sum.apply(self, 0).f.add_reduce(self.reshape((self.size,)), 0)
+        else:
+            # Sum along the specified dimension
+            return Sum.apply(self, dim)
+    
+    def view(self, dim : int = None) -> Tensor:
+        """Sum the tensor."""
+        if dim is None:
+            # If no dimension is provided, flatten the tensor and sum all elements
+            return Sum.apply(self, 0).f.add_reduce(self.reshape((self.size,)), 0)
+        else:
+            # Sum along the specified dimension
+            return Sum.apply(self, dim)
