@@ -395,21 +395,22 @@ class Tensor:
         return Permute.apply(self, shape_tensor)
     """
 
-    # """
+    """
     def view(self, b: Optional[TensorLike] = None) -> Tensor:
-        """Reshape the view of the tensor."""
+        ""Reshape the view of the tensor.""
         b = self._ensure_tensor(b) if b is not None else self
         return View.apply(self, b)
 
-    # """
+    """
 
-    """
+    # """
     def view(self, *shape: int) -> Tensor:
-        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
-            shape = shape[0]  # Allow passing a tuple or list as a single argument
-        shape_tensor = self._ensure_tensor(shape)
+        """Reshape the view of the tensor."""
+        c = Tensor.make(list(shape), (len(shape),), backend=self.backend)
+        shape_tensor = self._ensure_tensor(c)
         return View.apply(self, shape_tensor)
-    """
+
+    # """
 
     def zero_grad_(self) -> None:
         """Reset the gradients to None."""
