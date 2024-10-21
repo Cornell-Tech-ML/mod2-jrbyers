@@ -10,7 +10,6 @@ from .tensor_data import (
     index_to_position,
     to_index,
 )
-import numpy as np
 
 if TYPE_CHECKING:
     from .tensor import Tensor
@@ -39,7 +38,9 @@ class TensorOps:
     @staticmethod
     def reduce(
         fn: Callable[[float, float], float], start: float = 0.0
-    ) -> Callable[[Tensor, int], Tensor]: ...
+    ) -> Callable[[Tensor, int], Tensor]:
+        """Reduce placeholder"""
+        ...
 
     @staticmethod
     def matrix_multiply(a: Tensor, b: Tensor) -> Tensor:
@@ -199,6 +200,7 @@ class SimpleOps(TensorOps):
         Args:
         ----
             fn: function from two floats-to-float to apply
+            start: starting index
             a (:class:`TensorData`): tensor to reduce over
             dim (int): int of dim to reduce
 
@@ -270,16 +272,17 @@ def tensor_map(
         in_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        #raise NotImplementedError("Need to implement for Task 2.3")
-        
-        
+        # raise NotImplementedError("Need to implement for Task 2.3")
+
         out_size = len(out)
         in_index = [0] * len(in_shape)  # Index for input tensor
 
         # Iterate over the output tensor
         for out_idx in range(out_size):
             out_index = [0] * len(out_shape)
-            to_index(out_idx, out_shape, out_index)  # Convert the ordinal index to multidimensional
+            to_index(
+                out_idx, out_shape, out_index
+            )  # Convert the ordinal index to multidimensional
 
             # Broadcast input index for dimensions that differ
             for i in range(len(in_shape)):
@@ -339,11 +342,10 @@ def tensor_zip(
         b_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        #raise NotImplementedError("Need to implement for Task 2.3")
-
+        # raise NotImplementedError("Need to implement for Task 2.3")
 
         out_size = len(out)
-        
+
         # Initialize index lists for a and b
         a_index = [0] * len(a_shape)
         b_index = [0] * len(b_shape)
@@ -351,7 +353,9 @@ def tensor_zip(
         # Iterate over each element in the output tensor
         for out_idx in range(out_size):
             out_index = [0] * len(out_shape)
-            to_index(out_idx, out_shape, out_index)  # Convert ordinal to multidimensional index
+            to_index(
+                out_idx, out_shape, out_index
+            )  # Convert ordinal to multidimensional index
 
             # Broadcast input index for tensor A
             for i in range(len(a_shape)):
@@ -373,6 +377,7 @@ def tensor_zip(
 
             # Apply the function and store the result in the output
             out[out_idx] = fn(a_storage[a_pos], b_storage[b_pos])
+
     return _zip
 
 
@@ -404,19 +409,23 @@ def tensor_reduce(
         reduce_dim: int,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        #raise NotImplementedError("Need to implement for Task 2.3")
-        
+        # raise NotImplementedError("Need to implement for Task 2.3")
+
         out_size = len(out)
         reduce_size = a_shape[reduce_dim]
-        
+
         # Iterate over each element in the output tensor
         for out_idx in range(out_size):
             out_index = [0] * len(out_shape)
-            to_index(out_idx, out_shape, out_index)  # Convert ordinal to multidimensional index
+            to_index(
+                out_idx, out_shape, out_index
+            )  # Convert ordinal to multidimensional index
 
             # Initialize the reduction result with the first element in the reduce dimension
             a_index = out_index.copy()
-            a_index[reduce_dim] = 0  # Start with the first element in the reduce dimension
+            a_index[reduce_dim] = (
+                0  # Start with the first element in the reduce dimension
+            )
             reduce_pos = index_to_position(a_index, a_strides)
             reduce_result = a_storage[reduce_pos]
 

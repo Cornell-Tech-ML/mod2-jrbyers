@@ -12,7 +12,7 @@ from .autodiff import Context, Variable, backpropagate
 from .tensor_data import TensorData
 
 # Comment these out if not yet implemented
-#"""
+# """
 from .tensor_functions import (
     EQ,
     LT,
@@ -31,9 +31,9 @@ from .tensor_functions import (
     Sigmoid,
     Sum,
     View,
-    tensor,
+    # tensor,
 )
-#"""
+# """
 
 if TYPE_CHECKING:
     from typing import Any, Iterable, List, Optional, Sequence, Tuple, Type, Union
@@ -96,7 +96,6 @@ class Tensor:
 
         self.f = backend
         self.size = self._tensor.size
-        
 
     def requires_grad_(self, x: bool) -> None:
         """Adds history if gradient descent is needed."""
@@ -300,54 +299,51 @@ class Tensor:
     def __add__(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
         return Add.apply(self, b)
-    
+
     def __sub__(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
         return Add.apply(self, Neg.apply(b))
-    
+
     def __mul__(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
         return Mul.apply(self, b)
-    
+
     def __lt__(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
         return LT.apply(self, b)
-    
+
     def __eq__(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
         return EQ.apply(self, b)
-    
+
     def __gt__(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
         return LT.apply(b, self)
-    
+
     def __neg__(self) -> Tensor:
         return Neg.apply(self)
 
     def __radd__(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
         return self + b
-    
+
     def __rmul__(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
         return self * b
-    
+
     def all(self, b: TensorLike = None) -> Tensor:
-        """
-        if b is not None:
-            b = self._ensure_tensor(b)
-        return all.apply(self, b)
-        """
+        """Apply the all function"""
         if b is not None:
             b = self._ensure_tensor(b)
             return All.apply(self, b)  # Pass both tensors if b is provided
         else:
             return All.apply(self)
-    
+
     def is_close(self, b: TensorLike) -> Tensor:
+        """Apply the is close function"""
         b = self._ensure_tensor(b)
         return IsClose.apply(self, b)
-    
+
     def sigmoid(self) -> Tensor:
         """Apply sigmoid function"""
         return Sigmoid.apply(self)
@@ -355,7 +351,7 @@ class Tensor:
     def relu(self) -> Tensor:
         """Apply relu function"""
         return ReLU.apply(self)
-    
+
     def log(self) -> Tensor:
         """Apply log function"""
         return Log.apply(self)
@@ -364,33 +360,26 @@ class Tensor:
         """Apply exponential function"""
         return Exp.apply(self)
 
-    
-    def sum(self, b : TensorLike = None) -> Tensor:
+    def sum(self, b: TensorLike = None) -> Tensor:
         """Sum the tensor."""
-        """
-        if b is not None:
-            b = self._ensure_tensor(b)
-        return Sum.apply(self, b)
-        """
-        #"""
         if b is not None:
             b = self._ensure_tensor(b)
             print("b is: " + str(b))
             return Sum.apply(self, b)  # Pass both tensors if b is provided
         else:
             return Sum.apply(self)
-        #"""
-        
-        
-    def mean(self, b : TensorLike = None) -> Tensor:
+
+    def mean(self, b: TensorLike = None) -> Tensor:
         """Sum the tensor."""
         return
-        
-    def permute(self, b : TensorLike = None) -> Tensor:
+
+    def permute(self, b: TensorLike = None) -> Tensor:
         """Sum the tensor."""
-        return
-    
-    def view(self, b : Tensor = None) -> Tensor:
+        if b is not None:
+            b = self._ensure_tensor(b)
+        return Permute.apply(self, b)
+
+    def view(self, b: Tensor = None) -> Tensor:
         """Reshape the view of the tensor."""
         if b is not None:
             b = self._ensure_tensor(b)
