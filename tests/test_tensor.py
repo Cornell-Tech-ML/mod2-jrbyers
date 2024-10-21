@@ -67,6 +67,8 @@ def test_permute(data: DataObject, t1: Tensor) -> None:
     def permute(a: Tensor) -> Tensor:
         return a.permute(*permutation)
 
+    print("permutation is: " + str(permutation))
+    print("t1 is: " + str(t1))
     grad_check(permute, t1)
 
 
@@ -194,6 +196,9 @@ def test_reduce_forward_one_dim() -> None:
 
     # here 0 means to reduce the 0th dim, 3 -> nothing
     t_summed = t.sum(0)
+    print()
+    print()
+    print("t_summed is: " + str(t_summed))
 
     # shape (2)
     t_sum_expected = tensor([[11, 16]])
