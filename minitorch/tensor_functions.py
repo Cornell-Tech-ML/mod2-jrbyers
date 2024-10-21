@@ -145,8 +145,9 @@ class Sigmoid(Function):
     @staticmethod
     def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         """Backward pass derivative for sigmoid"""
-        sig_output: Tensor = ctx.saved_values[0]
-        return sig_output * (1.0 - sig_output) * grad_output
+        (sig_output,) = ctx.saved_tensors
+        grad_input = sig_output * (1.0 - sig_output) * grad_output
+        return grad_input
 
 
 class ReLU(Function):
@@ -204,7 +205,7 @@ class Sum(Function):
     @staticmethod
     def forward(ctx: Context, t1: Tensor, dim: Optional[Tensor] = None) -> Tensor:
         """Forward pass sum function"""
-        ctx.save_for_backward(t1)
+        ctx.save_for_backward(t1, dim)
         if dim is not None:
             return t1.f.add_reduce(t1, int(dim.item()))
         else:
@@ -213,10 +214,63 @@ class Sum(Function):
             )
 
     @staticmethod
-    def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, None]:
+    def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         """Backward pass derivative for sum"""
-        raise AttributeError("NOT IMPLEMENTED")
-        # return grad_input, None
+        t1, dim = ctx.saved_tensors  # Retrieve the original tensor and dim
+        gradient_tensor = zeros(t1._tensor.shape)
+
+        # Expand grad_output to match the shape of the original tensor
+        expanded_grad_output = t1.expand(grad_output)
+        gradient_tensor += expanded_grad_output
+
+        return gradient_tensor
+
+
+class Mean(Function):
+    """Calculates the mean function."""
+
+    @staticmethod
+    def forward(ctx: Context, t1: Tensor, dim: Optional[Tensor] = None) -> Tensor:
+        """Forward pass mean function"""
+        ctx.save_for_backward(t1, dim)
+        if dim is not None:
+            sum_result = t1.f.add_reduce(t1, int(dim.item()))
+            return sum_result / t1.shape[int(dim.item())]
+        else:
+            total_elements = t1.size
+            sum_result = t1.f.add_reduce(
+                t1.contiguous().view(int(operators.prod(list(t1.shape)))), 0
+            )
+            return sum_result / total_elements
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tensor:
+        """Backward pass derivative for sum"""
+        t1, dim = ctx.saved_tensors  # Retrieve the original tensor and dim
+        gradient_tensor = zeros(t1._tensor.shape)  # Initialize the gradient tensor
+
+        if dim is not None:
+            # Expand grad_output and scale by the number of elements in the dimension
+            expanded_grad_output = t1.expand(
+                grad_output
+            )  # Expand the gradient to match the original tensor
+            scale_factor = t1.shape[
+                int(dim.item())
+            ]  # Number of elements along the reduced dimension
+            gradient_tensor += expanded_grad_output / scale_factor  # Scale by 1/N
+        else:
+            # If no dimension is specified, scale by the total number of elements
+            total_elements = int(
+                operators.prod(list(t1.shape))
+            )  # Total number of elements
+            expanded_grad_output = t1.expand(
+                grad_output
+            )  # Expand to match the original tensor
+            gradient_tensor += (
+                expanded_grad_output / total_elements
+            )  # Scale by 1/N for the entire tensor
+
+        return gradient_tensor
 
 
 class LT(Function):
@@ -262,12 +316,26 @@ class Permute(Function):
     @staticmethod
     def forward(ctx: Context, t1: Tensor, dim: Tensor) -> Tensor:
         """Forward pass permute"""
-        dim_tuple = []
-        for i in dim:
-            dim_tuple.append(int(i))
-        # dim_tuple = tuple(int(dim[i] for i in range(dim.shape[0])))
+        dim_tuple = [int(i) for i in dim]
+
+        ctx.save_for_backward(dim_tuple)
         t1._tensor.permute(*dim_tuple)
         return t1
+
+    @staticmethod
+    def backward(ctx: Context, grad_output: Tensor) -> Tensor:
+        """Backward pass for permute"""
+        dim_tuple = ctx.saved_tensors[0]
+
+        # Get the inverse of the permutation indices
+        inv_dim_tuple = [0] * len(dim_tuple)
+        for i, d in enumerate(dim_tuple):
+            inv_dim_tuple[d] = i
+
+        # Initialize the gradient for the input tensor
+        grad_output._tensor.permute(*inv_dim_tuple)  # Permute the gradient back
+
+        return grad_output
 
 
 class View(Function):
