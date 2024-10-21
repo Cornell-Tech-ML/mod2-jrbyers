@@ -96,6 +96,7 @@ class Tensor:
 
         self.f = backend
         self.size = self._tensor.size
+        self.dims = self._tensor.dims
 
     def requires_grad_(self, x: bool) -> None:
         """Adds history if gradient descent is needed."""
@@ -385,3 +386,7 @@ class Tensor:
         if b is not None:
             b = self._ensure_tensor(b)
         return View.apply(self, b)
+
+    def zero_grad_(self) -> None:
+        """Reset the gradients to None."""
+        self.grad = None
