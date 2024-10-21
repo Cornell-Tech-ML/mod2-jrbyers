@@ -11,6 +11,8 @@ from .tensor_data import (
     to_index,
 )
 
+import numpy as np
+
 if TYPE_CHECKING:
     from .tensor import Tensor
     from .tensor_data import Shape, Storage, Strides
@@ -275,11 +277,11 @@ def tensor_map(
         # raise NotImplementedError("Need to implement for Task 2.3")
 
         out_size = len(out)
-        in_index = [0] * len(in_shape)  # Index for input tensor
+        in_index = np.zeros(len(in_shape), dtype=np.int32)
 
         # Iterate over the output tensor
         for out_idx in range(out_size):
-            out_index = [0] * len(out_shape)
+            out_index = np.zeros(len(out_shape), dtype=np.int32)
             to_index(
                 out_idx, out_shape, out_index
             )  # Convert the ordinal index to multidimensional
@@ -347,12 +349,12 @@ def tensor_zip(
         out_size = len(out)
 
         # Initialize index lists for a and b
-        a_index = [0] * len(a_shape)
-        b_index = [0] * len(b_shape)
+        a_index = np.zeros(len(a_shape), dtype=np.int32)
+        b_index = np.zeros(len(b_shape), dtype=np.int32)
 
         # Iterate over each element in the output tensor
         for out_idx in range(out_size):
-            out_index = [0] * len(out_shape)
+            out_index = np.zeros(len(out_shape), dtype=np.int32)
             to_index(
                 out_idx, out_shape, out_index
             )  # Convert ordinal to multidimensional index
@@ -416,7 +418,7 @@ def tensor_reduce(
 
         # Iterate over each element in the output tensor
         for out_idx in range(out_size):
-            out_index = [0] * len(out_shape)
+            out_index = np.zeros(len(out_shape), dtype=np.int32)
             to_index(
                 out_idx, out_shape, out_index
             )  # Convert ordinal to multidimensional index
