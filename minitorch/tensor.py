@@ -378,22 +378,24 @@ class Tensor:
         raise AttributeError("NOT IMPLEMENTED")
         return b
 
-    # """
+    """
     def permute(self, b: Optional[TensorLike] = None) -> Tensor:
-        """Permute the tensor."""
+        ""Permute the tensor.""
         b = self._ensure_tensor(b) if b is not None else self
         return Permute.apply(self, b)
 
-    # """
+    """
 
-    """
+    # """
     def permute(self, *shape: int) -> Tensor:
-        ""Reshape the view of the tensor.""
-        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
-            shape = shape[0]  # Allow passing a tuple or list as a single argument
-        shape_tensor = self._ensure_tensor(shape)
+        """Reshape the view of the tensor."""
+        # if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+        #   shape = shape[0]  # Allow passing a tuple or list as a single argument
+        c = Tensor.make(list(shape), (len(shape),), backend=self.backend)
+        shape_tensor = self._ensure_tensor(c)
         return Permute.apply(self, shape_tensor)
-    """
+
+    # """
 
     """
     def view(self, b: Optional[TensorLike] = None) -> Tensor:
