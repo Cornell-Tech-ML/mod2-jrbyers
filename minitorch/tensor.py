@@ -331,7 +331,7 @@ class Tensor:
         b = self._ensure_tensor(b)
         return self * b
 
-    def all(self, b: TensorLike = None) -> Tensor:
+    def all(self, b: Optional[TensorLike] = None) -> Tensor:
         """Apply the all function"""
         if b is not None:
             b = self._ensure_tensor(b)
@@ -360,7 +360,7 @@ class Tensor:
         """Apply exponential function"""
         return Exp.apply(self)
 
-    def sum(self, b: TensorLike = None) -> Tensor:
+    def sum(self, b: Optional[TensorLike] = None) -> Tensor:
         """Sum the tensor."""
         if b is not None:
             b = self._ensure_tensor(b)
@@ -369,17 +369,18 @@ class Tensor:
         else:
             return Sum.apply(self)
 
-    def mean(self, b: TensorLike = None) -> Tensor:
+    def mean(self, b: Optional[TensorLike] = None) -> Tensor:
         """Sum the tensor."""
-        return
+        raise AttributeError("NOT IMPLEMENTED")
+        return b
 
-    def permute(self, b: TensorLike = None) -> Tensor:
+    def permute(self, b: Optional[TensorLike] = None) -> Tensor:
         """Sum the tensor."""
         if b is not None:
             b = self._ensure_tensor(b)
         return Permute.apply(self, b)
 
-    def view(self, b: Tensor = None) -> Tensor:
+    def view(self, b: Optional[TensorLike] = None) -> Tensor:
         """Reshape the view of the tensor."""
         if b is not None:
             b = self._ensure_tensor(b)

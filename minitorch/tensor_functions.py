@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
@@ -103,12 +103,14 @@ class Add(Function):
 
 class All(Function):
     @staticmethod
-    def forward(ctx: Context, a: Tensor, dim: Tensor = None) -> Tensor:
+    def forward(ctx: Context, a: Tensor, dim: Optional[Tensor] = None) -> Tensor:
         """Return 1 if all are true"""
         if dim is not None:
             return a.f.mul_reduce(a, int(dim.item()))
         else:
-            return a.f.mul_reduce(a.contiguous().view(int(operators.prod(a.shape))), 0)
+            return a.f.mul_reduce(
+                a.contiguous().view(int(operators.prod(list(a.shape)))), 0
+            )
 
 
 # TODO: Implement for Task 2.3.
@@ -200,7 +202,7 @@ class Sum(Function):
     """Calculates the sum function."""
 
     @staticmethod
-    def forward(ctx: Context, t1: Tensor, dim: Tensor = None) -> Tensor:
+    def forward(ctx: Context, t1: Tensor, dim: Optional[Tensor] = None) -> Tensor:
         """Forward pass sum function"""
         ctx.save_for_backward(t1)
         if dim is not None:
@@ -213,9 +215,8 @@ class Sum(Function):
     @staticmethod
     def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, None]:
         """Backward pass derivative for sum"""
-        t1 = ctx.saved_tensors
-        grad_input = t1.expand(grad_output)
-        return grad_input, None
+        raise AttributeError("NOT IMPLEMENTED")
+        # return grad_input, None
 
 
 class LT(Function):
@@ -259,7 +260,7 @@ class Permute(Function):
     """Modifies dimensions of tensor."""
 
     @staticmethod
-    def forward(ctx: Context, t1: Tensor, dim: Tensor = None) -> Tensor:
+    def forward(ctx: Context, t1: Tensor, dim: Optional[Tensor] = None) -> Tensor:
         """Forward pass permute"""
         return t1.permute(dim)
 
