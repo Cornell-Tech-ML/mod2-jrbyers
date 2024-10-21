@@ -31,7 +31,7 @@ from .tensor_functions import (
     Sigmoid,
     Sum,
     View,
-    # tensor,
+    tensor,
 )
 # """
 
@@ -376,15 +376,26 @@ class Tensor:
         return b
 
     def permute(self, b: Optional[TensorLike] = None) -> Tensor:
-        """Sum the tensor."""
+        """Permute the tensor."""
+        b = self._ensure_tensor(b) if b is not None else self
+        return Permute.apply(self, b)
         if b is not None:
             b = self._ensure_tensor(b)
+        if b is None:
+            b = self.shape
         return Permute.apply(self, b)
 
     def view(self, b: Optional[TensorLike] = None) -> Tensor:
         """Reshape the view of the tensor."""
+        # if b is not None:
+        #    b = self._ensure_tensor(b)
+        b = self._ensure_tensor(b) if b is not None else self
+        return View.apply(self, b)
+
         if b is not None:
             b = self._ensure_tensor(b)
+        if b is tensor(-1):
+            b = self.shape
         return View.apply(self, b)
 
     def zero_grad_(self) -> None:
