@@ -31,7 +31,6 @@ from .tensor_functions import (
     Sigmoid,
     Sum,
     View,
-    tensor,
 )
 # """
 
@@ -305,6 +304,10 @@ class Tensor:
         b = self._ensure_tensor(b)
         return Add.apply(self, Neg.apply(b))
 
+    def __rsub__(self, b: TensorLike) -> Tensor:
+        b = self._ensure_tensor(b)
+        return Add.apply(self, Neg.apply(b))
+
     def __mul__(self, b: TensorLike) -> Tensor:
         b = self._ensure_tensor(b)
         return Mul.apply(self, b)
@@ -375,28 +378,38 @@ class Tensor:
         raise AttributeError("NOT IMPLEMENTED")
         return b
 
+    # """
     def permute(self, b: Optional[TensorLike] = None) -> Tensor:
         """Permute the tensor."""
         b = self._ensure_tensor(b) if b is not None else self
         return Permute.apply(self, b)
-        if b is not None:
-            b = self._ensure_tensor(b)
-        if b is None:
-            b = self.shape
-        return Permute.apply(self, b)
 
+    # """
+
+    """
+    def permute(self, *shape: int) -> Tensor:
+        ""Reshape the view of the tensor.""
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]  # Allow passing a tuple or list as a single argument
+        shape_tensor = self._ensure_tensor(shape)
+        return Permute.apply(self, shape_tensor)
+    """
+
+    # """
     def view(self, b: Optional[TensorLike] = None) -> Tensor:
         """Reshape the view of the tensor."""
-        # if b is not None:
-        #    b = self._ensure_tensor(b)
         b = self._ensure_tensor(b) if b is not None else self
         return View.apply(self, b)
 
-        if b is not None:
-            b = self._ensure_tensor(b)
-        if b is tensor(-1):
-            b = self.shape
-        return View.apply(self, b)
+    # """
+
+    """
+    def view(self, *shape: int) -> Tensor:
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]  # Allow passing a tuple or list as a single argument
+        shape_tensor = self._ensure_tensor(shape)
+        return View.apply(self, shape_tensor)
+    """
 
     def zero_grad_(self) -> None:
         """Reset the gradients to None."""
