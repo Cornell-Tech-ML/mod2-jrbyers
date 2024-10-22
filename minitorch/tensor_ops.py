@@ -350,10 +350,18 @@ def tensor_zip(
 
         # Pad the shapes and strides of a and b to match out_shape length (broadcasting)
         max_dim = len(out_shape)
-        a_shape_pad = [1] * (max_dim - len(a_shape)) + list(a_shape)
-        b_shape_pad = [1] * (max_dim - len(b_shape)) + list(b_shape)
-        a_strides_pad = [0] * (max_dim - len(a_strides)) + list(a_strides)
-        b_strides_pad = [0] * (max_dim - len(b_strides)) + list(b_strides)
+        a_shape_pad = np.array(
+            [1] * (max_dim - len(a_shape)) + list(a_shape), dtype=np.int32
+        )
+        b_shape_pad = np.array(
+            [1] * (max_dim - len(b_shape)) + list(b_shape), dtype=np.int32
+        )
+        a_strides_pad = np.array(
+            [0] * (max_dim - len(a_strides)) + list(a_strides), dtype=np.int32
+        )
+        b_strides_pad = np.array(
+            [0] * (max_dim - len(b_strides)) + list(b_strides), dtype=np.int32
+        )
 
         # Initialize index lists for a and b
         a_index = np.zeros(len(a_shape_pad), dtype=np.int32)
