@@ -67,15 +67,8 @@ def test_permute(data: DataObject, t1: Tensor) -> None:
     def permute(a: Tensor) -> Tensor:
         return a.permute(*permutation)
 
-    print()
-    print("SOURCE PERMUTE")
-    print("t1 is: " + str(t1))
-    print("new dimensions are: " + str(permutation))
     grad_check(permute, t1)
-    print("done with test")
-    print()
-    print()
-    print()
+
 
 
 def test_grad_size() -> None:

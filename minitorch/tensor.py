@@ -368,9 +368,6 @@ class Tensor:
 
     def sum(self, b: Optional[TensorLike] = None) -> Tensor:
         """Sum the tensor."""
-        print("Sum b param: " + str(b))
-        print("self param: " + str(self))
-
         if b is not None:
             b = self._ensure_tensor(b)
             return Sum.apply(self, b)  # Pass both tensors if b is provided
@@ -397,6 +394,9 @@ class Tensor:
         """Reshape the view of the tensor."""
         c = Tensor.make(list(shape), (len(shape),), backend=self.backend)
         shape_tensor = self._ensure_tensor(c)
+
+        new_size = np.prod(shape)  # Calculate product of the new shape
+        assert new_size == self.size
         return View.apply(self, shape_tensor)
 
     def zero_grad_(self) -> None:

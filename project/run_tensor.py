@@ -4,6 +4,9 @@ Be sure you have minitorch installed in you Virtual Env.
 """
 
 import minitorch
+from minitorch.tensor import Tensor
+import numpy as np
+import random
 
 # Use this function to make a random parameter in
 # your module.
@@ -22,41 +25,69 @@ class Network(minitorch.Module):
         self.layer3 = Linear(hidden_layers, 1)
 
     def forward(self, x):
-        middle = [h.relu() for h in self.layer1.forward(x)]
-        end = [h.relu() for h in self.layer2.forward(middle)]
-        return self.layer3.forward(end)[0].sigmoid()
+        middle = self.layer1.forward(x).relu()
+        end = self.layer2.forward(middle).relu()
+        output = self.layer3.forward(end)
+        return output.sigmoid()
 
 class Linear(minitorch.Module):
     def __init__(self, in_size, out_size):
         super().__init__()
-        self.weights = []
-        self.bias = []
+        self.weights = RParam(in_size, out_size)
+        self.bias = RParam(out_size)
+        
+        """
+        xavier_weights = self.get_xavier_weights(in_size, out_size)
 
-        #xavier_weights = Linear.get_xavier_weights(in_size, out_size)
+        # Create weights and biases as tensors
+        self.weights = minitorch.tensor(xavier_weights.tolist(), requires_grad=True)
+        self.bias = minitorch.tensor([2 * (random.random() - 0.5) for _ in range(out_size)], requires_grad=True)
+        
+        self.bias = Tensor.make(
+            [2 * (random.random() - 0.5) for _ in range(out_size)], 
+            (out_size,)
+        )"""
 
-        for i in range(in_size):
-            self.weights.append([])
-            for j in range(out_size):
-                self.weights[i].append(
-                    self.add_parameter(
-                        f"weight_{i}_{j}", minitorch.Scalar(xavier_weights[i * out_size + j])
-                    )
-                )
-        for j in range(out_size):
-            self.bias.append(
-                self.add_parameter(
-                    f"bias_{j}", minitorch.Scalar(2 * (random.random() - 0.5))
-                )
-            )
 
     def forward(self, inputs):
         # Ensure inputs are in the correct shape
-        assert len(inputs) == len(self.weights), "Input size must match weights size."
-        y = [b.value for b in self.bias]
-        for i, x in enumerate(inputs):
-            for j in range(len(y)):
-                y[j] = y[j] + x * self.weights[i][j].value
-        return y
+        assert inputs.shape[1] == self.weights.value.shape[0], "Input size must match weights size."
+
+        batch_size = inputs.shape[0]
+        num_features = inputs.shape[1]
+        hidden_size = self.weights.value.shape[1]
+
+        inputs = inputs.view(batch_size, num_features, 1)
+
+        mul_weight = inputs * self.weights.value
+
+        reduced_X = mul_weight.sum(1)
+
+        output = reduced_X + self.bias.value
+        new_tensor = output.view(batch_size, hidden_size)
+        return new_tensor
+        
+    
+    @staticmethod
+    def get_xavier_weights(fan_in: int, fan_out: int):
+        """Function for producing Xavier initialization as outlined in Ed post 179."""
+        n = fan_in * fan_out
+        random_weights = np.random.uniform(low=-1.0, high=1.0, size=n)
+
+        # Adjust the mean to be exactly 0
+        actual_mean = np.mean(random_weights)
+        xavier_weights = random_weights - actual_mean
+
+        # Calculate desired variance
+        desired_variance = 2/ (fan_in + fan_out)
+
+        # Adjust the variance to be the desired variance
+        actual_variance = np.var(xavier_weights)
+        scaling_factor = np.sqrt(desired_variance / actual_variance)
+        xavier_weights = xavier_weights * scaling_factor
+
+        return xavier_weights
+
 
 def default_log_fn(epoch, total_loss, correct, losses):
     print("Epoch ", epoch, " loss ", total_loss, "correct", correct)
