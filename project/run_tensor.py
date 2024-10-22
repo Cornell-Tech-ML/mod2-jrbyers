@@ -35,16 +35,16 @@ class Linear(minitorch.Module):
         super().__init__()
         self.weights = RParam(in_size, out_size)
         self.bias = RParam(out_size)
-        
+
         """
         xavier_weights = self.get_xavier_weights(in_size, out_size)
 
         # Create weights and biases as tensors
         self.weights = minitorch.tensor(xavier_weights.tolist(), requires_grad=True)
         self.bias = minitorch.tensor([2 * (random.random() - 0.5) for _ in range(out_size)], requires_grad=True)
-        
+
         self.bias = Tensor.make(
-            [2 * (random.random() - 0.5) for _ in range(out_size)], 
+            [2 * (random.random() - 0.5) for _ in range(out_size)],
             (out_size,)
         )"""
 
@@ -66,8 +66,8 @@ class Linear(minitorch.Module):
         output = reduced_X + self.bias.value
         new_tensor = output.view(batch_size, hidden_size)
         return new_tensor
-        
-    
+
+
     @staticmethod
     def get_xavier_weights(fan_in: int, fan_out: int):
         """Function for producing Xavier initialization as outlined in Ed post 179."""

@@ -350,15 +350,14 @@ def tensor_zip(
 
         # Pad the shapes and strides of a and b to match out_shape length (broadcasting)
         max_dim = len(out_shape)
-        a_shape = [1] * (max_dim - len(a_shape)) + list(a_shape)
-        b_shape = [1] * (max_dim - len(b_shape)) + list(b_shape)
-        a_strides = [0] * (max_dim - len(a_strides)) + list(a_strides)
-        b_strides = [0] * (max_dim - len(b_strides)) + list(b_strides)
-
+        a_shape_pad = [1] * (max_dim - len(a_shape)) + list(a_shape)
+        b_shape_pad = [1] * (max_dim - len(b_shape)) + list(b_shape)
+        a_strides_pad = [0] * (max_dim - len(a_strides)) + list(a_strides)
+        b_strides_pad = [0] * (max_dim - len(b_strides)) + list(b_strides)
 
         # Initialize index lists for a and b
-        a_index = np.zeros(len(a_shape), dtype=np.int32)
-        b_index = np.zeros(len(b_shape), dtype=np.int32)
+        a_index = np.zeros(len(a_shape_pad), dtype=np.int32)
+        b_index = np.zeros(len(b_shape_pad), dtype=np.int32)
 
         # Iterate over each element in the output tensor
         for out_idx in range(out_size):
@@ -368,22 +367,22 @@ def tensor_zip(
             )  # Convert ordinal to multidimensional index
 
             # Broadcast input index for tensor A
-            for i in range(len(a_shape)):
-                if a_shape[i] == 1:
+            for i in range(len(a_shape_pad)):
+                if a_shape_pad[i] == 1:
                     a_index[i] = 0  # Broadcasted dimension for A
                 else:
                     a_index[i] = out_index[i]
 
             # Broadcast input index for tensor B
-            for i in range(len(b_shape)):
-                if b_shape[i] == 1:
+            for i in range(len(b_shape_pad)):
+                if b_shape_pad[i] == 1:
                     b_index[i] = 0  # Broadcasted dimension for B
                 else:
                     b_index[i] = out_index[i]
 
             # Convert multidimensional indices to linear storage positions
-            a_pos = index_to_position(a_index, a_strides)
-            b_pos = index_to_position(b_index, b_strides)
+            a_pos = index_to_position(a_index, a_strides_pad)
+            b_pos = index_to_position(b_index, b_strides_pad)
 
             # Apply the function and store the result in the output
             out[out_idx] = fn(a_storage[a_pos], b_storage[b_pos])
